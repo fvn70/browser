@@ -1,3 +1,32 @@
+import os
+import sys
+
+
+def read_data(file_name):
+    text = ''
+    if file_name == 'bloomberg':
+        text = bloomberg_com
+    elif file_name == 'nytimes':
+        text = nytimes_com
+    return text
+
+
+def get_file_name(url):
+    fn = url.replace('https://', '')
+    fn = fn.rsplit('.')
+    return '_'.join(fn[:-1])
+
+
+def write_data(data, f_name):
+    # f_name = get_file_name(url)
+    path = dir_name + '/' + f_name
+    if not os.path.exists(path):
+        with open(path, 'w', encoding='utf-8') as file:
+            file.write(data)
+    if not f_name in files:
+        files.append(f_name)
+    print(data)
+
 
 nytimes_com = '''
 This New Liquid Is Magnetic, and Mesmerizing
@@ -34,12 +63,29 @@ Twitter and Square Chief Executive Officer Jack Dorsey
  Tuesday, a signal of the strong ties between the Silicon Valley giants.
 '''
 
+dir_name = sys.argv[1]
+files = []
+sites = ["bloomberg.com", "nytimes.com"]
+file_name = ''
+
+if not os.path.exists(dir_name):
+    os.mkdir(dir_name)
+
 while True:
     cmd = input()
     if cmd == 'exit':
         break
-    if cmd == 'bloomberg.com':
-        print(bloomberg_com)
-    if cmd == 'nytimes.com':
-        print(nytimes_com)
+    if cmd in files:
+        content = read_data(cmd)
+        print(content)
+        continue
+    if cmd not in sites:
+        print("Error: Incorrect URL")
+        continue
+
+    file_name = get_file_name(cmd)
+
+    content = read_data(file_name)
+    # text = '\n'.join([s for s in content.split('\n') if s])
+    write_data(content, file_name)
 
