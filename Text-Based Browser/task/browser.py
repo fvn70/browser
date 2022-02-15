@@ -65,8 +65,10 @@ Twitter and Square Chief Executive Officer Jack Dorsey
 
 dir_name = sys.argv[1]
 files = []
+stack = []
 sites = ["bloomberg.com", "nytimes.com"]
 file_name = ''
+current_name = ''
 
 if not os.path.exists(dir_name):
     os.mkdir(dir_name)
@@ -75,17 +77,27 @@ while True:
     cmd = input()
     if cmd == 'exit':
         break
-    if cmd in files:
-        content = read_data(cmd)
-        print(content)
-        continue
-    if cmd not in sites:
-        print("Error: Incorrect URL")
-        continue
-
-    file_name = get_file_name(cmd)
+    if cmd == 'back':
+        if stack:
+            file_name = stack.pop()
+        else:
+            continue
+    else:
+        if cmd in files:
+            content = read_data(cmd)
+            print(content)
+            continue
+        if cmd not in sites:
+            print("Error: Incorrect URL")
+            continue
+        if file_name:
+            current_name = file_name
+        file_name = get_file_name(cmd)
 
     content = read_data(file_name)
+
+    if current_name and file_name != current_name:
+        stack.append(current_name)
     # text = '\n'.join([s for s in content.split('\n') if s])
     write_data(content, file_name)
 
