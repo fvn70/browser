@@ -1,14 +1,22 @@
 import os
 import sys
+import requests
 
 
 def read_data(file_name):
-    text = ''
-    if file_name == 'bloomberg':
-        text = bloomberg_com
-    elif file_name == 'nytimes':
-        text = nytimes_com
-    return text
+    pref = 'https://'
+    if pref in file_name:
+        url = file_name
+    else:
+        url = pref + file_name
+    try:
+        user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) " \
+                     "Chrome/70.0.3538.77 Safari/537.36"
+        r = requests.get(url, headers={'User-Agent': user_agent})
+        return r.text
+    except requests.exceptions.ConnectionError:
+        print("Incorrect URL")
+        return ""
 
 
 def get_file_name(url):
@@ -17,8 +25,8 @@ def get_file_name(url):
     return '_'.join(fn[:-1])
 
 
-def write_data(data, f_name):
-    # f_name = get_file_name(url)
+def write_data(data, url):
+    f_name = get_file_name(url)
     path = dir_name + '/' + f_name
     if not os.path.exists(path):
         with open(path, 'w', encoding='utf-8') as file:
@@ -28,45 +36,9 @@ def write_data(data, f_name):
     print(data)
 
 
-nytimes_com = '''
-This New Liquid Is Magnetic, and Mesmerizing
-
-Scientists have created “soft” magnets that can flow 
-and change shape, and that could be a boon to medicine 
-and robotics. (Source: New York Times)
-
-
-Most Wikipedia Profiles Are of Men. This Scientist Is Changing That.
-
-Jessica Wade has added nearly 700 Wikipedia biographies for
- important female and minority scientists in less than two 
- years.
-
-'''
-
-bloomberg_com = '''
-The Space Race: From Apollo 11 to Elon Musk
-
-It's 50 years since the world was gripped by historic images
- of Apollo 11, and Neil Armstrong -- the first man to walk 
- on the moon. It was the height of the Cold War, and the charts
- were filled with David Bowie's Space Oddity, and Creedence's 
- Bad Moon Rising. The world is a very different place than 
- it was 5 decades ago. But how has the space race changed since
- the summer of '69? (Source: Bloomberg)
-
-
-Twitter CEO Jack Dorsey Gives Talk at Apple Headquarters
-
-Twitter and Square Chief Executive Officer Jack Dorsey 
- addressed Apple Inc. employees at the iPhone maker’s headquarters
- Tuesday, a signal of the strong ties between the Silicon Valley giants.
-'''
-
 dir_name = sys.argv[1]
 files = []
 stack = []
-sites = ["bloomberg.com", "nytimes.com"]
 file_name = ''
 current_name = ''
 
@@ -83,16 +55,8 @@ while True:
         else:
             continue
     else:
-        if cmd in files:
-            content = read_data(cmd)
-            print(content)
-            continue
-        if cmd not in sites:
-            print("Error: Incorrect URL")
-            continue
-        if file_name:
-            current_name = file_name
-        file_name = get_file_name(cmd)
+        current_name = file_name
+        file_name = cmd
 
     content = read_data(file_name)
 
