@@ -2,6 +2,7 @@ import os
 import sys
 import requests
 from bs4 import BeautifulSoup
+from colorama import Fore
 
 
 def read_data(file_name):
@@ -15,8 +16,13 @@ def read_data(file_name):
                      "Chrome/70.0.3538.77 Safari/537.36"
         r = requests.get(url, headers={'User-Agent': user_agent})
         soup = BeautifulSoup(r.content, 'html.parser')
-        content = soup.find_all(tags)
 
+        for tag in soup.find_all('a'):
+            a_text = str(tag.text.strip())
+            if a_text:
+                tag.string = Fore.BLUE + tag.text + Fore.RESET
+
+        content = soup.find_all(tags)
         text = ''
         for s in content:
             s1 = s.text.strip()
