@@ -1,6 +1,7 @@
 import os
 import sys
 import requests
+from bs4 import BeautifulSoup
 
 
 def read_data(file_name):
@@ -13,7 +14,15 @@ def read_data(file_name):
         user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) " \
                      "Chrome/70.0.3538.77 Safari/537.36"
         r = requests.get(url, headers={'User-Agent': user_agent})
-        return r.text
+        soup = BeautifulSoup(r.content, 'html.parser')
+        content = soup.find_all(tags)
+
+        text = ''
+        for s in content:
+            s1 = s.text.strip()
+            if s1:
+                text += s1 + '\n'
+        return text
     except requests.exceptions.ConnectionError:
         print("Incorrect URL")
         return ""
@@ -41,7 +50,7 @@ files = []
 stack = []
 file_name = ''
 current_name = ''
-
+tags = ['p', 'a', 'h1', 'h2', 'ul', 'ol', 'li']
 if not os.path.exists(dir_name):
     os.mkdir(dir_name)
 
@@ -62,6 +71,6 @@ while True:
 
     if current_name and file_name != current_name:
         stack.append(current_name)
-    # text = '\n'.join([s for s in content.split('\n') if s])
+    text = '\n'.join([s for s in content.split('\n') if s])
     write_data(content, file_name)
 
